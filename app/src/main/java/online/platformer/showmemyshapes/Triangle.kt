@@ -13,20 +13,21 @@ var triangleCoords = floatArrayOf(
 )
 
 class Triangle {
-    val colour = floatArrayOf(0.63671875f, 0.76953125f, 0.22265625f, 1.0f)
+    private val colour = floatArrayOf(0.63671875f, 0.76953125f, 0.22265625f, 1.0f)
 
     private val vertexShaderCode =
-        "attribute vec4 vPosition;" +
-                "void main() {" +
-                "   gl_Position = vPosition;" +
-                "}"
+        "uniform mat4 uMVPMatrix;" +
+            "attribute vec4 vPosition;" +
+            "void main() {" +
+            "   gl_Position = uMVPMatrix * vPosition;" +
+            "}"
 
     private val fragmentShaderCode =
         "precision mediump float;" +
-                "uniform vec4 vColor;" +
-                "void main() {" +
-                "   gl_FragColor = vColor;" +
-                "}"
+            "uniform vec4 vColor;" +
+            "void main() {" +
+            "   gl_FragColor = vColor;" +
+            "}"
 
     private var program: Int
 
@@ -56,11 +57,12 @@ class Triangle {
 
     private var positionHandle = 0
     private var colourHandle = 0
+    private var modelViewProjectionMatrixHandle = 0
 
     private val vertexCount = triangleCoords.size / COORDS_PER_VERTEX
     private val vertexStride = COORDS_PER_VERTEX * 4
 
-    fun draw() {
+    fun draw(modelViewProjectionMatrix: FloatArray) {
         GLES20.glUseProgram(program)
 
         positionHandle = GLES20.glGetAttribLocation(program, "vPosition").also {
@@ -77,6 +79,10 @@ class Triangle {
 
             colourHandle = GLES20.glGetUniformLocation(program, "vColor").also { colourHandle ->
                 GLES20.glUniform4fv(colourHandle, 1, colour, 0)
+            }
+
+            modelViewProjectionMatrixHandle = GLES20.glGetUniformLocation(program, "uMVPMatrix").also {
+                GLES20.glUniformMatrix4fv(modelViewProjectionMatrixHandle, 1, false, modelViewProjectionMatrix, 0)
             }
 
             GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
