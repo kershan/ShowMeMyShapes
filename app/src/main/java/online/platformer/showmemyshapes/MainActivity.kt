@@ -27,7 +27,7 @@ class MainActivity : Activity() {
 
             setRenderer(renderer)
 
-            renderMode = RENDERMODE_WHEN_DIRTY
+            //renderMode = RENDERMODE_WHEN_DIRTY
         }
     }
 }
